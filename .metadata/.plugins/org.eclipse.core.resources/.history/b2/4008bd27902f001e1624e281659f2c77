@@ -1,0 +1,90 @@
+package tests;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import com.aventstack.extentreports.ExtentReports;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import report.ExtentTestNGListener;
+
+import static io.restassured.RestAssured.*;
+
+public class GKR_code_delivery {
+	
+	
+	String dtauthloginkey;
+	String dtauthloginkey2;
+	String sessionId;
+	@BeforeClass
+    public void setUp() {
+        // Base URI
+        RestAssured.baseURI = "https://api-qa.dthreaddev.com";
+    }
+	
+	@Test
+    public void testAuth() {
+        String requestBody = "{ \"email\": \"vindhyar@byteridge.com\", \"password\": \"Pass@12345\" }";
+
+        Response response =
+            given()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+            .when()
+                .post("/api/sessions/auth")
+            .then()
+                .statusCode(200) // Validate the status code is 200 (OK)
+                .extract().response();
+        
+        
+        
+        dtauthloginkey = response.jsonPath().getString("data.userData.id");
+        dtauthloginkey2 = response.jsonPath().getString("data.userData.organizationId");
+        
+        Assert.assertFalse(dtauthloginkey.isEmpty(), "ID is empty or null");
+        Assert.assertFalse(dtauthloginkey2.isEmpty(), "Organization ID is empty or null");
+
+    }
+	
+	  @Test
+	    public void testVerify2FA() {
+	        // Base URI
+	       
+
+	        // Request Headers
+	        //String dtAuthLoginKey = "465fe5a1-7a16-4347-b87a-2ff00182a839";
+	        //String dtAuthLoginKey2 = "1b2bcc65-677c-41bc-b677-01f9e93392f3";
+
+	        // Request Body
+	        String requestBody = "{ \"code\": \"QWERTY\" }";
+
+	        // Send POST request and get the response
+	        Response response =
+	            given()
+	                .accept(ContentType.JSON)
+	                .header("dt-auth-login-key", dtauthloginkey)
+	                .header("dt-auth-login-key-2", dtauthloginkey2)
+	                .contentType(ContentType.JSON)
+	                .body(requestBody)
+	            .when()
+	                .post("/api/sessions/verify-2fa")
+	            .then()
+	            	.statusCode(200)
+	                .extract().response();
+	        
+	        sessionId = response.jsonPath().getString("data.sessionToken");
+	        System.out.println(sessionId);
+
+//	        // Print the response status code
+//	        System.out.println("Response Status Code: " + response.getStatusCode());
+//
+//	        // Print the response body
+//	        System.out.println("Response Body: ");
+//	        System.out.println(response.getBody().asString());
+	    }
+	
+}

@@ -1,0 +1,3 @@
+devicethread-apis.outdir=/test-output
+devicethread-apis.useProjectJar=false
+eclipse.preferences.version=1
