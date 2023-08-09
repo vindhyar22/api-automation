@@ -1,0 +1,175 @@
+@Test(priority = 2, enabled = false)
+	public void testProperties() {
+		Response response = given().accept(ContentType.JSON)
+
+				.header("Authorization", "Bearer " + sessionId)
+
+				.when().get("/api/properties/").then().statusCode(200) // Validate the status code is 200 (OK)
+				.extract().response();
+
+		propertyId = response.jsonPath().getString("data[0].Property.id");
+		Assert.assertFalse(propertyId.isEmpty(), "propertyId is empty or null");
+
+	}
+
+	@Test(priority = 3, enabled = false)
+	public void testAddsmartthings() {
+
+		propertyId = "\"e7d7dae7-e4e3-41e5-881b-9582dd0a00a0\"";
+
+		String requestBody = "{ \"cloudEmailId\": \"st-s6@dthreaddev.com\", \"propertyId\": " + propertyId
+				+ ", \"pat\": \"1a37152a-591f-41b7-a9fa-5d8126b648e5\", \"tokenname\": \"\" }";
+
+		System.out.println(requestBody);
+
+		Response response = given().accept(ContentType.JSON)
+
+				.contentType(ContentType.JSON).header("Authorization", "Bearer " + sessionId).body(requestBody).when()
+				.post("/api/smartthings").then().statusCode(201).extract().response();
+
+		String stResponse = response.jsonPath().getString("data");
+		System.out.println("Smarthing response  -------------" + response.getBody().asPrettyString());
+
+		Assert.assertFalse(stResponse.isEmpty(), "sessionId is empty or null");
+
+	}
+
+	@Test(priority = 4, enabled = false)
+
+	public void getZones() {
+
+		propertyId = "e7d7dae7-e4e3-41e5-881b-9582dd0a00a0";
+
+		Response response =
+
+				given()
+
+				.accept(ContentType.JSON)
+
+				.contentType(ContentType.JSON)
+
+				.pathParam("propertyId", "e7d7dae7-e4e3-41e5-881b-9582dd0a00a0")
+
+				.header("Authorization", "Bearer " + sessionId)
+
+				.when()
+
+				.get("/api/zones/{propertyId}")
+
+				.then()
+
+				.statusCode(200)
+
+				.extract().response();
+
+		zoneId = response.jsonPath().getString("data[0].id");
+
+		System.out.println("Zoneid  -------------" + zoneId);
+
+		Assert.assertFalse(zoneId.isEmpty(), "zoneId is empty or null");
+
+	}
+
+	@Test(priority = 5, enabled = false)
+	public void getDeviceDetails() {
+
+		Response response = given().accept(ContentType.JSON)
+
+				.contentType(ContentType.JSON)
+
+				.header("Authorization", "Bearer " + sessionId)
+
+				.when().get("/api/smartthings/devices/{propertyId}/{cloudEmailId}",
+						"e7d7dae7-e4e3-41e5-881b-9582dd0a00a0", "st-s6@dthreaddev.com")
+				.then().statusCode(200).extract().response();
+
+		deviceId = response.jsonPath().getString("data.newDevices[0].deviceId");
+
+		System.out.println("deviceId is  -------------" + deviceId);
+
+		Assert.assertFalse(deviceId.isEmpty(), "deviceDetails is empty or null");
+
+	}
+
+	@Test(priority = 6, enabled = false)
+	public void getParticularDeviceDetails() {
+
+		Response response = given().accept(ContentType.JSON)
+
+				.contentType(ContentType.JSON).queryParam("deviceId", "057e2be1-96e1-417a-9ac1-2891c9262877")
+
+				.header("Authorization", "Bearer " + sessionId)
+
+				.when().get("/api/smartthings/devices/{propertyId}/{cloudEmailId}",
+						"e7d7dae7-e4e3-41e5-881b-9582dd0a00a0", "st-s6@dthreaddev.com")
+				.then().statusCode(200).extract().response();
+
+		particularDeviceDetails = response.getBody().asPrettyString();
+
+		JSONObject jsonResponseObject = new JSONObject(particularDeviceDetails);
+
+		JSONObject innerObject = jsonResponseObject.getJSONObject("data");
+
+		deviceDeatails2 = innerObject.toString(2);
+
+		System.out.println("inner data    --->" + deviceDeatails2);
+
+		Assert.assertFalse(particularDeviceDetails.isEmpty(), "ParticularDeviceDetails is empty or null");
+
+	}
+
+	@Test(priority = 7, enabled = false)
+	public void getProtocolId() {
+
+		Response response = given().accept(ContentType.JSON)
+
+				.contentType(ContentType.JSON)
+
+				.header("Authorization", "Bearer " + sessionId)
+
+				.when().get("/api/smartthings/accounts/{propertyId}", "e7d7dae7-e4e3-41e5-881b-9582dd0a00a0").then()
+				.statusCode(200).extract().response();
+
+		ProtocolID = response.jsonPath().getString("data[0].id");
+		System.out.println("ProtocolID is  -------------" + ProtocolID);
+
+		Assert.assertFalse(ProtocolID.isEmpty(), "deviceDetails is empty or null");
+
+	}
+
+	@Test(priority = 8, enabled = false)
+	public void addDeviceToZone2() {
+		System.out.println(deviceTozone);
+
+		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
+				.header("Authorization", "Bearer " + sessionId).body(deviceTozone).when().post("/api/devices").then()
+				.statusCode(200).extract().response();
+
+		System.out.println("deviceAddedToZoneResponse: " + response.getBody().asString());
+
+	}
+	
+	@Test(priority = 9, enabled = false)
+	public void addDeviceToCollection() {
+
+		String requestBody = "{\r\n" + "  \"zoneIds\": [\r\n" + "    \"f5850488-6940-4c66-9cc6-6487d861ddde\"\r\n"
+				+ "  ],\r\n" + "  \"deviceIds\": [\r\n" + "    \"54a9b5cd-bb73-4601-a48a-884c74d66ac4\"\r\n" + "  ]\r\n"
+				+ "}";
+
+		Response response = given().accept(ContentType.JSON)
+				.header("dt-property-id", "e7d7dae7-e4e3-41e5-881b-9582dd0a00a0")
+
+				.contentType(ContentType.JSON)
+
+				.header("Authorization", "Bearer " + sessionId).body(requestBody).when()
+				.put("/api/collection/updatezonesordevices/{collectionId}", "57d2b110-5e17-4329-88ed-3325c95a6e5a")
+
+				.then().statusCode(200).extract().response();
+
+		DeviceAddedToCollectionResponse = response.getBody().asPrettyString();
+		System.out.println("DeviceAddedToCollectionResponse is  -------------" + DeviceAddedToCollectionResponse);
+
+		Assert.assertFalse(DeviceAddedToCollectionResponse.isEmpty(),
+				"DeviceAddedToCollectionResponse is empty or null");
+
+	}
