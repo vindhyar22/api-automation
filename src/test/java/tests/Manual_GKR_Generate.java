@@ -1,19 +1,12 @@
 package tests;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import com.aventstack.extentreports.ExtentTest;
-import com.aventstack.extentreports.Status;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import report.ExtentTestNGListener;
-
 import static io.restassured.RestAssured.*;
 
 import java.time.LocalDate;
@@ -21,8 +14,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-public class Manual_GKR_Generate extends ExtentTestNGListener {
-	private ExtentTest test;
+public class Manual_GKR_Generate {
 	
 	String dtauthloginkey;
 	String dtauthloginkey2;
