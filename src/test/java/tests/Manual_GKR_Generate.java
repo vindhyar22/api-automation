@@ -7,14 +7,18 @@ import org.testng.annotations.Test;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+
+
 import static io.restassured.RestAssured.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Random;
 
 public class Manual_GKR_Generate {
+	
 	
 	String dtauthloginkey;
 	String dtauthloginkey2;
@@ -65,7 +69,7 @@ public class Manual_GKR_Generate {
 		System.out.println(" Sessionid  -----" + sessionId);
 
 		Assert.assertFalse(sessionId.isEmpty(), "sessionId is empty or null");
-		
+	
 	}
 
 	
@@ -76,17 +80,27 @@ public class Manual_GKR_Generate {
 		LocalTime nextHourTimeUTC = currentTimeUTC.plus(1, ChronoUnit.HOURS);
 		String startdate = today + " " + currentTimeUTC;
 		String enddate = today + " " + nextHourTimeUTC;
-		String firstName ="TEST"+Math.round(Math.random()*1000);
+		int leftLimit = 97; // letter 'a'
+	    int rightLimit = 122; // letter 'z'
+	    int targetStringLength = 10;
+	    Random random = new Random();
+
+	    String generatedString = random.ints(leftLimit, rightLimit + 1)
+	      .limit(targetStringLength)
+	      .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+	      .toString();
+
+		String firstName =generatedString;
 		String requestBody = "{\r\n" + 
-				"  \"propertyId\": \"e7d7dae7-e4e3-41e5-881b-9582dd0a00a0\",\r\n" + 
+				"  \"propertyId\": \"9bb338ed-701f-4a28-bf81-a3776bdc541c\",\r\n" + 
 				"  \"type\": \"GUEST\",\r\n" + 
 				"  \"firstName\": \""+firstName+"\",\r\n" + 
-				"  \"lastName\": \"User\",\r\n" + 
+				"  \"lastName\": \"random user\",\r\n" + 
 				"  \"email\": \"\",\r\n" + 
 				"  \"phone\": \"\",\r\n" + 
 				"  \"userId\": \"\",\r\n" + 
 				"  \"collectionIds\": [\r\n" + 
-				"    \"57d2b110-5e17-4329-88ed-3325c95a6e5a\"\r\n" + 
+				"    \"dc9b2891-ede8-4378-8e7f-92175eeb343a\"\r\n" + 
 				"  ],\r\n" + 
 				"  \"requestKeyName\": \"\",\r\n" + 
 				"  \"startDate\": \""+startdate+"\",\r\n" + 
@@ -97,7 +111,6 @@ public class Manual_GKR_Generate {
 		
 
 		Response response = given().accept(ContentType.JSON)
-
 				.contentType(ContentType.JSON).header("Authorization", "Bearer " + sessionId).body(requestBody).when()
 				.post("/api/keyrequest/create").then().statusCode(201).extract().response();
 
@@ -115,7 +128,7 @@ public class Manual_GKR_Generate {
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
 				.pathParam("keyId", Key_ID)
-				.header("dt-property-id", "e7d7dae7-e4e3-41e5-881b-9582dd0a00a0")
+				.header("dt-property-id", "9bb338ed-701f-4a28-bf81-a3776bdc541c")
 				.header("Authorization", "Bearer " + sessionId).when().get("/api/keyrequest/GUEST/{keyId}/detail")
 				.then().statusCode(200).extract().response();
 
@@ -136,14 +149,14 @@ public class Manual_GKR_Generate {
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
 				.pathParam("keyId", Key_ID)
-				.header("dt-property-id", "e7d7dae7-e4e3-41e5-881b-9582dd0a00a0")
+				.header("dt-property-id", "9bb338ed-701f-4a28-bf81-a3776bdc541c")
 				.header("Authorization", "Bearer " + sessionId).when().get("/api/keyrequest/{keyId}/device-detail")
 				.then().statusCode(200).extract().response();
 
 		codedelievered = response.jsonPath().getString("data[0].isDelivered");
 
 		Assert.assertEquals(codedelievered, "true");
-	
+		
 
 	}
 
@@ -151,7 +164,7 @@ public class Manual_GKR_Generate {
 	public void smartthingsverification() {
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
-				.header("Authorization", "Bearer 1a37152a-591f-41b7-a9fa-5d8126b648e5")
+				.header("Authorization", "Bearer 59af3838-4d59-4a86-9974-2c51119c86c0")
 				.header("Cache-Control", "no-cache").when()
 				.get("https://api.smartthings.com/v1/devices/54a9b5cd-bb73-4601-a48a-884c74d66ac4/components/main/capabilities/lockCodes/status")
 				.then().statusCode(200).extract().response();
@@ -160,7 +173,7 @@ public class Manual_GKR_Generate {
 		System.out.println(smartthings_code1);
 		smartthings_code2 = response.jsonPath().getString("lockCodes.value");
 		Assert.assertTrue(smartthings_code2.contains(smartthings_code1));
-
+		
 	}
 	
 	
