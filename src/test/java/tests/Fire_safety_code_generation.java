@@ -107,8 +107,6 @@ public class Fire_safety_code_generation {
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
 				.queryParam("type", "FIRE_SAFETY_CODE")
-				//.pathParam("masterCodeId", "3610fbf4-64cf-41be-a7e3-9ab0399dd5dd")
-				
 				.pathParam("propertyId", "9bb338ed-701f-4a28-bf81-a3776bdc541c")
 				.header("Authorization", "Bearer " + sessionId).when().get("/api/mastercode/{propertyId}")
 				.then().statusCode(200).extract().response();
@@ -126,12 +124,10 @@ public class Fire_safety_code_generation {
 	public void getCodeDeliveryStatus() throws InterruptedException {
 	//3min delay	
 	//Thread.sleep(180000);
-	//Thread.sleep(180000);
+	Thread.sleep(180000);
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
-				//.pathParam("masterCodeId", masterCodeId)
-				.pathParam("masterCodeId", "3610fbf4-64cf-41be-a7e3-9ab0399dd5dd")
-				
+				.pathParam("masterCodeId", masterCodeId)
 				.header("dt-property-id", "9bb338ed-701f-4a28-bf81-a3776bdc541c")
 				.header("Authorization", "Bearer " + sessionId).when().get("/api/mastercode/{masterCodeId}/device-details")
 				.then().statusCode(200).extract().response();
