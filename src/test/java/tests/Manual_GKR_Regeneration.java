@@ -1,10 +1,9 @@
 package tests;
 
 import org.testng.Assert;
-
 import org.testng.annotations.BeforeClass;
-
 import org.testng.annotations.Test;
+
 
 
 import io.restassured.RestAssured;
@@ -21,7 +20,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
 public class Manual_GKR_Regeneration  {
-
+	
 
 	String dtauthloginkey;
 	String dtauthloginkey2;
@@ -57,7 +56,7 @@ public class Manual_GKR_Regeneration  {
 
 		Assert.assertFalse(dtauthloginkey.isEmpty(), "ID is empty or null");
 		Assert.assertFalse(dtauthloginkey2.isEmpty(), "Organization ID is empty or null");
-
+		
 
 	}
 
@@ -76,11 +75,11 @@ public class Manual_GKR_Regeneration  {
 		System.out.println(" Sessionid  -----" + sessionId);
 
 		Assert.assertFalse(sessionId.isEmpty(), "sessionId is empty or null");
-
+		
 	}
 
 
-	@Test(priority = 2, enabled = true)
+	@Test(priority = 2, enabled = false)
 	public void createGKR() {
 		LocalDate today = LocalDate.now();
 		LocalTime currentTimeUTC = LocalTime.now(ZoneOffset.UTC);
@@ -88,19 +87,18 @@ public class Manual_GKR_Regeneration  {
 		String startdate = today + " " + currentTimeUTC;
 		String enddate = today + " " + nextHourTimeUTC;
 		int leftLimit = 97; // letter 'a'
-		int rightLimit = 122; // letter 'z'
-		int targetStringLength = 10;
-		Random random = new Random();
+	    int rightLimit = 122; // letter 'z'
+	    int targetStringLength = 10;
+	    Random random = new Random();
 
-		String generatedString = random.ints(leftLimit, rightLimit + 1)
-				.limit(targetStringLength)
-				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-				.toString();
+	    String generatedString = random.ints(leftLimit, rightLimit + 1)
+	      .limit(targetStringLength)
+	      .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+	      .toString();
 
-		String firstName=generatedString;
-
+		String firstName =generatedString;
 		String requestBody = "{\r\n" + 
-				"  \"propertyId\": \"e7d7dae7-e4e3-41e5-881b-9582dd0a00a0\",\r\n" + 
+				"  \"propertyId\": \"9bb338ed-701f-4a28-bf81-a3776bdc541c\",\r\n" + 
 				"  \"type\": \"GUEST\",\r\n" + 
 				"  \"firstName\": \""+firstName+"\",\r\n" + 
 				"  \"lastName\": \"random user\",\r\n" + 
@@ -108,7 +106,7 @@ public class Manual_GKR_Regeneration  {
 				"  \"phone\": \"\",\r\n" + 
 				"  \"userId\": \"\",\r\n" + 
 				"  \"collectionIds\": [\r\n" + 
-				"    \"57d2b110-5e17-4329-88ed-3325c95a6e5a\"\r\n" + 
+				"    \"dc9b2891-ede8-4378-8e7f-92175eeb343a\"\r\n" + 
 				"  ],\r\n" + 
 				"  \"requestKeyName\": \"\",\r\n" + 
 				"  \"startDate\": \""+startdate+"\",\r\n" + 
@@ -116,7 +114,7 @@ public class Manual_GKR_Regeneration  {
 				"  \"neverExpires\": false,\r\n" + 
 				"  \"phoneNumberCountryCode\": \"\"\r\n" + 
 				"}";
-
+		
 
 		Response response = given().accept(ContentType.JSON)
 
@@ -124,21 +122,43 @@ public class Manual_GKR_Regeneration  {
 				.post("/api/keyrequest/create").then().statusCode(201).extract().response();
 
 		GKRCreatedResponse = response.getBody().asPrettyString();
-		System.out.println("PropertiesFromCB is  -------------" + GKRCreatedResponse);
+		//System.out.println("PropertiesFromCB is  -------------" + GKRCreatedResponse);
 		Key_ID= response.jsonPath().getString("data.id");
-		System.out.println("Key_ID------"+Key_ID);
 
 		Assert.assertFalse(GKRCreatedResponse.isEmpty(), "GKRCreatedResponse is empty or null");
-
+		
 
 	}
+	
+	@Test(priority = 2, enabled = true)
+	public void getKeyId() {
+
+		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
+				.pathParam("type", "GUEST")
+				.pathParam("propertyId", "9bb338ed-701f-4a28-bf81-a3776bdc541c")
+				.header("Authorization", "Bearer " + sessionId).when().get("/api/keyrequest/{propertyId}/{type}/summary")
+				.then().statusCode(200).extract().response();
+
+		
+		Key_ID = response.jsonPath().getString("data.keys[0].id");
+		System.out.println("Key_ID is  -------------" + Key_ID);
+
+		Assert.assertFalse(Key_ID.isEmpty(), "Key_ID is empty or null");
+		
+
+	}
+	
+	
+	
+	
+
 
 	@Test(priority = 3, enabled = true)
 	public void getKeyDetails() {
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
 				.pathParam("keyId", Key_ID)
-				.header("dt-property-id", "e7d7dae7-e4e3-41e5-881b-9582dd0a00a0")
+				.header("dt-property-id", "9bb338ed-701f-4a28-bf81-a3776bdc541c")
 				.header("Authorization", "Bearer " + sessionId).when().get("/api/keyrequest/GUEST/{keyId}/detail")
 				.then().statusCode(200).extract().response();
 
@@ -148,18 +168,18 @@ public class Manual_GKR_Regeneration  {
 		System.out.println("keyDetails is  -------------" + code);
 
 		Assert.assertFalse(keyDetails.isEmpty(), "keyDetails is empty or null");
-
+		
 
 	}
 
 	@Test(priority = 4,enabled=true)
 	public void keyRegenerate() throws InterruptedException {
-
+	
 
 
 		Response response = given().accept(ContentType.JSON)
 				.pathParam("keyId", Key_ID)
-				.header("dt-property-id", "e7d7dae7-e4e3-41e5-881b-9582dd0a00a0")
+				.header("dt-property-id", "9bb338ed-701f-4a28-bf81-a3776bdc541c")
 				.header("Authorization", "Bearer " + sessionId).when().put("/api/keyrequest/{keyId}/update")
 				.then().statusCode(200).extract().response();
 
@@ -179,14 +199,14 @@ public class Manual_GKR_Regeneration  {
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
 				.pathParam("keyId", Key_ID)
-				.header("dt-property-id", "e7d7dae7-e4e3-41e5-881b-9582dd0a00a0")
+				.header("dt-property-id", "9bb338ed-701f-4a28-bf81-a3776bdc541c")
 				.header("Authorization", "Bearer " + sessionId).when().get("/api/keyrequest/{keyId}/device-detail")
 				.then().statusCode(200).extract().response();
 
 		codedelievered = response.jsonPath().getString("data[0].isDelivered");
 
 		Assert.assertEquals(codedelievered, "true");
-
+		
 
 	}
 
@@ -203,7 +223,7 @@ public class Manual_GKR_Regeneration  {
 		System.out.println(smartthings_code1);
 		smartthings_code2 = response.jsonPath().getString("lockCodes.value");
 		Assert.assertTrue(smartthings_code2.contains(smartthings_code1));
-
+		
 	}
 
 

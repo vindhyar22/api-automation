@@ -33,12 +33,7 @@
 
 
 		<!-- ExtentReports -->
-		<dependency>
-			<groupId>com.aventstack</groupId>
-			<artifactId>extentreports</artifactId>
-			<version>5.0.9</version> <!-- Use the latest version available -->
-			<scope>test</scope>
-		</dependency>
+		
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
