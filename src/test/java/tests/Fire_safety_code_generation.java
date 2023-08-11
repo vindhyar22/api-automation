@@ -102,7 +102,7 @@ public class Fire_safety_code_generation {
 	@Test(priority = 3,enabled=true)
 	public void GMCDetails() throws InterruptedException {
 	//3min delay	
-	//Thread.sleep(180000);
+	Thread.sleep(60000);
 	//Thread.sleep(180000);
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
@@ -121,33 +121,35 @@ public class Fire_safety_code_generation {
 
 
 	@Test(priority = 4,enabled=true)
-	public void getCodeDeliveryStatus() throws InterruptedException {
+	public void getCodeDeliveryStatus() throws Throwable   {
 	//3min delay	
+	Thread.sleep(60000);
 	//Thread.sleep(180000);
-	Thread.sleep(180000);
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
 				.pathParam("masterCodeId", masterCodeId)
+				//.pathParam("masterCodeId", "64dc3a51-f06c-46ce-acdc-80d481b4ea81")
 				.header("dt-property-id", "9bb338ed-701f-4a28-bf81-a3776bdc541c")
 				.header("Authorization", "Bearer " + sessionId).when().get("/api/mastercode/{masterCodeId}/device-details")
 				.then().statusCode(200).extract().response();
 
 		codedelievered = response.jsonPath().getString("data[0].isDelivered");
-		
+		System.out.println("codedelievered-->"+codedelievered);
 		Assert.assertEquals(codedelievered, "true");
 	
 
 	}
 
 	@Test(priority =5,enabled=true)
-	public void smartthingsverification() {
+	public void smartthingsverification() throws Throwable {
+		Thread.sleep(30000);
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
 				.header("Authorization", "Bearer 59af3838-4d59-4a86-9974-2c51119c86c0")
 				.header("Cache-Control", "no-cache").when()
 				.get("https://api.smartthings.com/v1/devices/ad4ee6b2-c011-4a79-99a1-a5d754f5421a/components/main/capabilities/lockCodes/status")
 				.then().statusCode(200).extract().response();
-
+		//smartthings_code1 = "code_5014";
 		smartthings_code1 = "code_" + code;
 		System.out.println(smartthings_code1);
 		smartthings_code2 = response.jsonPath().getString("lockCodes.value");
