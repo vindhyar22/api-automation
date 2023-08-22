@@ -22,6 +22,7 @@ public class Fire_safety_code_generation {
 	String Key_ID;
 	String FSCCreatedResponse;
 	String masterCodeId;
+	String NoOfDevices;
 
 	
 	@BeforeClass
@@ -113,8 +114,8 @@ public class Fire_safety_code_generation {
 
 		code = response.jsonPath().getString("data.code");
 		System.out.println(" code  -----" + code);
-		
-	
+		NoOfDevices = response.jsonPath().getString("data.totalDevices");
+		System.out.println(" NoOfDevices  -----" + NoOfDevices);
 
 	}
 	
