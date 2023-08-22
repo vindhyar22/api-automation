@@ -206,7 +206,7 @@ public class Common_LockCode_Generation {
 				System.out.println(smartthings_code1);
 				smartthings_code2 = response2.jsonPath().getString("lockCodes.value");
 				Assert.assertTrue(smartthings_code2.contains(smartthings_code1));
-		
+		//Working 
 		}
 
 	}
