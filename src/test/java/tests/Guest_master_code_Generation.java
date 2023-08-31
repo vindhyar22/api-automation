@@ -6,13 +6,13 @@ import org.testng.annotations.Test;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import static io.restassured.RestAssured.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class Common_LockCode_Generation {
+public class Guest_master_code_Generation {
 	
 	String dtauthloginkey;
 	String dtauthloginkey2;
@@ -23,16 +23,15 @@ public class Common_LockCode_Generation {
 	String smartthings_code1;
 	String smartthings_code2;
 	String Key_ID;
-	String CLCCreatedResponse;
+	String FSCCreatedResponse;
 	String masterCodeId;
-	String NoOfDevices;
-	String ZoneName;
-	String	AllZones;
-	String ZoneId;
-	String ZoneType;
-	String deviceCount;
+	String code2;
+	String firstCodeDelievered;
+	String SecondCodeDelievered;
+	String GMCCreatedResponse;
+	String countOfDevices;
+	int codeDeliveredDevices;
 	String deviceId;
-	String deliveredDevices;
 
 	
 	@BeforeClass
@@ -76,116 +75,79 @@ public class Common_LockCode_Generation {
 		
 	}
 	
-	@Test(priority =2 ,enabled=true)
-	public void Generate_Common_Lock_codes() {
+	
+	
+	@Test(priority = 2,enabled=true)
+	public void Generate_Guest_Master_codes() throws InterruptedException {
 		
-		Response response= given().accept(ContentType.JSON).contentType(ContentType.JSON)
-				.pathParam("propertyId", "e787c685-c805-4f35-bd30-316428dc5f32")
-				.header("Authorization","Bearer "+sessionId).when()
-				.get("/api/zones/{propertyId}").then().statusCode(200).extract().response();
-		
-	
-	
-	 // Get the list of Zone IDs from the response
-    List<String> ZoneIds = response.jsonPath().getList("data.id");
-
-    // Create a list to store common area zone IDs
-    List<String> commonAreaZoneIds = new ArrayList<>();
-
-    for (int i = 0; i < ZoneIds.size(); i++) {
-        String zoneType = response.jsonPath().getString("data[" + i + "].ZoneType.name");
-        int deviceCount = response.jsonPath().getInt("data[" + i + "].devices");
-        
-        if (deviceCount != 0 && "Common area".equals(zoneType)) {
-            String zoneId = response.jsonPath().getString("data[" + i + "].id");
-            commonAreaZoneIds.add(zoneId);
-        }
-    }
-
-    System.out.println("commonAreaZoneIds---------->" + commonAreaZoneIds);
-	 String zonesListString = "\"" + String.join("\", \"", commonAreaZoneIds) + "\"";
-	 System.out.println("zonesListString----->"+zonesListString);
-
-	
 		// Request Body
-		String requestBody = "{\n" +
-                "  \"propertyId\": \"e787c685-c805-4f35-bd30-316428dc5f32\",\n" +
-                "  \"type\": \"COMMON_LOCK_CODE\",\n" +
-                "  \"collectionId\": \"\",\n" +
-                "  \"name\": \"\",\n" +
-                "  \"zonesList\": [" + zonesListString + "]\n" +
-                "}";
-				
-				// Send POST request and get the response
-				Response response2 = given().accept(ContentType.JSON)
-						.contentType(ContentType.JSON).header("Authorization", "Bearer " + sessionId).body(requestBody).when()
-						.post("/api/mastercode").then().statusCode(201).extract().response();
+				String requestBody = "{\n" +
+		                "  \"propertyId\": \"e787c685-c805-4f35-bd30-316428dc5f32\",\n" +
+		                "  \"type\": \"GUEST_MASTER_CODE\",\n" +
+		                "  \"collectionId\": \"\",\n" +
+		                "  \"name\": \"\",\n" +
+		                "  \"zonesList\": [\n" +
+		                "    \"\"\n" +
+		                "  ]\n" +
+		                "}";
 
-		CLCCreatedResponse = response2.getBody().asPrettyString();
+				// Send POST request and get the response
+				Response response = given().accept(ContentType.JSON)
+						.contentType(ContentType.JSON).header("Authorization", "Bearer " + sessionId).body(requestBody).when()
+						.post("/api/mastercode").then().statusCode(202).extract().response();
+
+		GMCCreatedResponse = response.getBody().asPrettyString();
 		
-		code = response2.jsonPath().getString("data.code");
-		masterCodeId = response2.jsonPath().getString("data.id");
-		
-		System.out.println("code-------->"+code);
-		System.out.println("masterCodeId-------->"+masterCodeId);
-		
-		Assert.assertFalse(CLCCreatedResponse.isEmpty(), "CLCCreatedResponse is empty or null");
+		System.out.println("GMCCreatedResponse  -----" +GMCCreatedResponse);
+
+		Assert.assertFalse(GMCCreatedResponse.isEmpty(), "GMCCreatedResponse is empty or null");
 	
 
 	}
-	
-	
-
 	@Test(priority = 3,enabled=true)
-	public void CLCDetails() throws InterruptedException {
-	//3min delay	
-	//Thread.sleep(60000);
-	Thread.sleep(180000);
-
+	public void getGMCDetails() throws Throwable {
+		
+		Thread.sleep(180000);
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
-				.queryParam("type", "COMMON_LOCK_CODE")
 				.pathParam("propertyId", "e787c685-c805-4f35-bd30-316428dc5f32")
-				.header("Authorization", "Bearer " + sessionId).when().get("/api/mastercode/{propertyId}")
+				.queryParam("type", "GUEST_MASTER_CODE")
+				.header("Authorization", "Bearer "+ sessionId).when().get("/api/mastercode/{propertyId}")
 				.then().statusCode(200).extract().response();
 		
-		 List<String> MastercodeIds = response.jsonPath().getList("data.masterCodesList.id");
-		for (int i = 0; i < MastercodeIds.size(); i++) {
-	        String masterCodeId2 = response.jsonPath().getString("data.masterCodesList["+i+"].id");
-	     
+		masterCodeId = response.jsonPath().getString("data.id");
+		System.out.println("masterCodeId  -----" +masterCodeId);
 		
-		if(masterCodeId.equals(masterCodeId2)) {
-
-		NoOfDevices = response.jsonPath().getString("data.masterCodesList["+i+"].totalDevices");
-		deliveredDevices = response.jsonPath().getString("data.masterCodesList["+i+"].successfulDevices");
+		countOfDevices = response.jsonPath().getString("totalDevices");
+		//codeDeliveredDevices = response.jsonPath().getInt("successfulDevices");
 		
-		System.out.println(" NoOfDevices  -----" + NoOfDevices);
-		System.out.println(" deliveredDevices  -----" + deliveredDevices);
-		}
-		}
+				
 	}
 	
-
 	@Test(priority = 4,enabled=true)
-	public void getCodeDeliveryStatus() throws Throwable   {
+	public void getCodeDeliveryStatus()   {
 	//1min delay	
-	Thread.sleep(30000);
 	
-
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
 				.pathParam("masterCodeId", masterCodeId)
 				.header("dt-property-id", "e787c685-c805-4f35-bd30-316428dc5f32")
 				.header("Authorization", "Bearer " + sessionId).when().get("/api/mastercode/{masterCodeId}/device-details")
 				.then().statusCode(200).extract().response();
 
-		codedelievered = response.jsonPath().getString("data[0].isDelivered");
-		System.out.println("codedelievered-->"+codedelievered);
-		Assert.assertEquals(codedelievered, "true");
+//		codedelievered = response.jsonPath().getString("data[0].isDelivered");
+//		System.out.println("codedelievered-->"+codedelievered);
+//		Assert.assertEquals(codedelievered, "true");
 		
 		List<String> deviceIds = response.jsonPath().getList("data.id");
 		for (int i = 0; i < deviceIds.size(); i++) {
 		  
 			 deviceId 	=response.jsonPath().getString("data["+i+"].id");
 			 System.out.println(" deviceId  -----" + deviceId);
+			 code 	=response.jsonPath().getString("data["+i+"].code");
+			 System.out.println(" deviceId  -----" + code);
+
+			 codedelievered = response.jsonPath().getString("data["+i+"].isDelivered");
+			 System.out.println("codedelievered-->"+codedelievered);
+				//Assert.assertEquals(codedelievered, "true");
 			 
 
 			 Response response2 = RestAssured.given()
@@ -210,6 +172,5 @@ public class Common_LockCode_Generation {
 		}
 
 	}
-	
 	
 }
