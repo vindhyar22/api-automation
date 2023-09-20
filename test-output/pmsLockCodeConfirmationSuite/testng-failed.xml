@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [pmsLockCodeConfirmationSuite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="pmsLockCodeConfirmation(failed)">
+    <classes>
+      <class name="pmsLockCodeDelivery.pms_Gkr_Code_ConfirmationTesting">
+        <methods>
+          <include name="getKeyAndVerifyCodeDelivery"/>
+          <include name="setUp"/>
+        </methods>
+      </class> <!-- pmsLockCodeDelivery.pms_Gkr_Code_ConfirmationTesting -->
+    </classes>
+  </test> <!-- pmsLockCodeConfirmation(failed) -->
+</suite> <!-- Failed suite [pmsLockCodeConfirmationSuite] -->

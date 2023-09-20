@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="ManualCodeConfirmationSuite" parallel="classes" >
+  <test thread-count="12" parallel="classes" name="ManualCodeConfirmation">
+    <classes>
+	 <class name="manualLockCodeDelivery.Common_LockCode_Generation"/>	
+	 <class name="manualLockCodeDelivery.Common_LockCode_Regeneration"/> 
+     <class name="manualLockCodeDelivery.Guest_master_code_Generation"/>
+     <class name="manualLockCodeDelivery.Fire_safety_code_generation"/>
+    </classes>
+  </test> <!-- ManualCodeConfirmation -->
+</suite> <!-- ManualCodeConfirmationSuite -->

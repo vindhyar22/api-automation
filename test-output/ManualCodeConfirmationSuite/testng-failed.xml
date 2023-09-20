@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite parallel="classes" name="Failed suite [ManualCodeConfirmationSuite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" parallel="classes" name="ManualCodeConfirmation(failed)">
+    <classes>
+      <class name="manualLockCodeDelivery.Fire_safety_code_generation">
+        <methods>
+          <include name="setUp"/>
+          <include name="getCodeDeliveryStatus"/>
+        </methods>
+      </class> <!-- manualLockCodeDelivery.Fire_safety_code_generation -->
+      <class name="manualLockCodeDelivery.Manual_GKR_Expire">
+        <methods>
+          <include name="setUp"/>
+          <include name="getCodeDeliveryStatus"/>
+        </methods>
+      </class> <!-- manualLockCodeDelivery.Manual_GKR_Expire -->
+      <class name="manualLockCodeDelivery.Manual_SKR_Generate">
+        <methods>
+          <include name="setUp"/>
+          <include name="getCodeDeliveryStatus"/>
+        </methods>
+      </class> <!-- manualLockCodeDelivery.Manual_SKR_Generate -->
+      <class name="manualLockCodeDelivery.Manual_GKR_Generate">
+        <methods>
+          <include name="setUp"/>
+          <include name="getCodeDeliveryStatus"/>
+        </methods>
+      </class> <!-- manualLockCodeDelivery.Manual_GKR_Generate -->
+    </classes>
+  </test> <!-- ManualCodeConfirmation(failed) -->
+</suite> <!-- Failed suite [ManualCodeConfirmationSuite] -->
