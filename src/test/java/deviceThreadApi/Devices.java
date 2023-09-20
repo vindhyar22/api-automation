@@ -17,7 +17,7 @@ public class Devices {
 	String dtauthloginkey2;
 	String GKRCreatedResponse;
 	String keyDetails;
-//Email Sent code needs to be passed here 
+//Email Sent code needs to be passed
 	String code = "1234";
 
 	String codedelievered;
