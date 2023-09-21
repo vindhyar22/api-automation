@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [ManualLockCodeConfirmationSuite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="ManualLockCodeConfirmation(failed)">
+    <classes>
+      <class name="manualLockCodeDelivery.Fire_safety_code_Regeneration">
+        <methods>
+          <include name="Generate_Fire_Safety_codes"/>
+          <include name="FSCRegenerate"/>
+          <include name="getCodeDeliveryStatus"/>
+          <include name="setUp"/>
+          <include name="smartthingsverification"/>
+        </methods>
+      </class> <!-- manualLockCodeDelivery.Fire_safety_code_Regeneration -->
+      <class name="manualLockCodeDelivery.Guest_master_code_Regeneration">
+        <methods>
+          <include name="Generate_Guest_Master_codes"/>
+          <include name="setUp"/>
+        </methods>
+      </class> <!-- manualLockCodeDelivery.Guest_master_code_Regeneration -->
+      <class name="manualLockCodeDelivery.Common_LockCode_Regeneration">
+        <methods>
+          <include name="getCodeDeliveryStatus"/>
+          <include name="CLCDetails"/>
+          <include name="setUp"/>
+        </methods>
+      </class> <!-- manualLockCodeDelivery.Common_LockCode_Regeneration -->
+      <class name="manualLockCodeDelivery.Manual_SKR_Generate">
+        <methods>
+          <include name="setUp"/>
+          <include name="getCodeDeliveryStatus"/>
+        </methods>
+      </class> <!-- manualLockCodeDelivery.Manual_SKR_Generate -->
+      <class name="manualLockCodeDelivery.Fire_safety_code_generation">
+        <methods>
+          <include name="setUp"/>
+          <include name="getCodeDeliveryStatus"/>
+        </methods>
+      </class> <!-- manualLockCodeDelivery.Fire_safety_code_generation -->
+    </classes>
+  </test> <!-- ManualLockCodeConfirmation(failed) -->
+</suite> <!-- Failed suite [ManualLockCodeConfirmationSuite] -->

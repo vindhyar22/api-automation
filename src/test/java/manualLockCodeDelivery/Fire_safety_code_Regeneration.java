@@ -1,0 +1,184 @@
+package manualLockCodeDelivery;
+
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.sessionId;
+
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+
+public class Fire_safety_code_Regeneration {
+
+	String dtauthloginkey;
+	String dtauthloginkey2;
+	String GKRCreatedResponse;
+	String keyDetails;
+	String code;
+	String codedelievered;
+	String smartthings_code1;
+	String smartthings_code2;
+	String Key_ID;
+	String FSCCreatedResponse;
+	String masterCodeId;
+	String NoOfDevices;
+	String code_regenerate;
+
+	@BeforeClass
+	public void setUp() {
+		// Base URI
+		RestAssured.baseURI = "https://api-qa.dthreaddev.com";
+	}
+
+	@Test(priority = 0)
+	public void testAuth() {
+		String requestBody = "{ \"email\": \"ios28@yopmail.com\", \"password\": \"Pass@12345\" }";
+
+		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON).body(requestBody).when()
+				.post("/api/sessions/auth").then().statusCode(200) // Validate the status code is 200 (OK)
+				.extract().response();
+
+		dtauthloginkey = response.jsonPath().getString("data.userData.id");
+		dtauthloginkey2 = response.jsonPath().getString("data.userData.organizationId");
+
+		Assert.assertFalse(dtauthloginkey.isEmpty(), "ID is empty or null");
+		Assert.assertFalse(dtauthloginkey2.isEmpty(), "Organization ID is empty or null");
+
+	}
+
+	@Test(priority = 1)
+	public void testVerify2FA() {
+
+		// Request Body
+		String requestBody = "{ \"code\": \"QWERTY\" }";
+
+		// Send POST request and get the response
+		Response response = given().accept(ContentType.JSON).header("dt-auth-login-key", dtauthloginkey)
+				.header("dt-auth-login-key-2", dtauthloginkey2).contentType(ContentType.JSON).body(requestBody).when()
+				.post("/api/sessions/verify-2fa").then().statusCode(200).extract().response();
+
+		sessionId = response.jsonPath().getString("data.sessionToken");
+		System.out.println(" Sessionid  -----" + sessionId);
+
+		Assert.assertFalse(sessionId.isEmpty(), "sessionId is empty or null");
+
+	}
+
+	@Test(priority = 2, enabled = true)
+	public void Generate_Fire_Safety_codes() throws InterruptedException {
+		Thread.sleep(107000);
+		System.out.println("waited for 107 sec for generate GMC");
+
+		// Request Body
+		String requestBody = "{\n" + "  \"propertyId\": \"e787c685-c805-4f35-bd30-316428dc5f32\",\n"
+				+ "  \"type\": \"FIRE_SAFETY_CODE\",\n" + "  \"collectionId\": \"\",\n" + "  \"name\": \"\",\n"
+				+ "  \"zonesList\": [\n" + "    \"\"\n" + "  ]\n" + "}";
+
+		// Send POST request and get the response
+		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
+				.header("Authorization", "Bearer " + sessionId).body(requestBody).when().post("/api/mastercode").then()
+				.statusCode(201).extract().response();
+
+		FSCCreatedResponse = response.getBody().asPrettyString();
+		// code = response.jsonPath().getString("data.code");
+		masterCodeId = response.jsonPath().getString("data.id");
+
+		Assert.assertFalse(FSCCreatedResponse.isEmpty(), "FSCCreatedResponse is empty or null");
+
+	}
+
+	@Test(priority = 3, enabled = true)
+	public void FscDetails() throws InterruptedException {
+		Thread.sleep(30000);
+
+		System.out.println("waited for 12 sec for generate GMC");
+
+		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
+				.queryParam("type", "FIRE_SAFETY_CODE").pathParam("propertyId", "e787c685-c805-4f35-bd30-316428dc5f32")
+				.header("Authorization", "Bearer " + sessionId).when().get("/api/mastercode/{propertyId}").then()
+				.statusCode(200).extract().response();
+
+		code = response.jsonPath().getString("data.code");
+		System.out.println(" code  -----" + code);
+		NoOfDevices = response.jsonPath().getString("data.totalDevices");
+		System.out.println(" NoOfDevices  -----" + NoOfDevices);
+
+	}
+
+	@Test(priority = 4, enabled = true)
+	public void FSCRegenerate() throws InterruptedException {
+
+		Response response = given().accept(ContentType.JSON).pathParam("masterCodeId", masterCodeId)
+				.header("dt-property-id", "e787c685-c805-4f35-bd30-316428dc5f32")
+				.header("Authorization", "Bearer " + sessionId).when().put("/api/mastercode/{masterCodeId}/regenerate")
+				.then().statusCode(200).extract().response();
+
+		code_regenerate = response.jsonPath().getString("data.code");
+		System.out.println("code_regenerate---->" + code_regenerate);
+		// code = response.jsonPath().getString("data.code");
+		// Assert.assertEquals(codedelievered, "true");
+
+	}
+
+	@Test(priority = 5, enabled = true)
+	public void getCodeDeliveryStatus() throws Throwable {
+		Thread.sleep(180000);
+		Thread.sleep(180000);
+
+		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
+				.pathParam("masterCodeId", masterCodeId)
+				// .pathParam("masterCodeId", "64dc3a51-f06c-46ce-acdc-80d481b4ea81")
+				.header("dt-property-id", "e787c685-c805-4f35-bd30-316428dc5f32")
+				.header("Authorization", "Bearer " + sessionId).when()
+				.get("/api/mastercode/{masterCodeId}/device-details").then().statusCode(200).extract().response();
+
+		codedelievered = response.jsonPath().getString("data[0].isDelivered");
+		System.out.println("codedelievered-->" + codedelievered);
+		Assert.assertEquals(codedelievered, "true");
+
+	}
+
+	@Test(priority = 6, enabled = true)
+	public void smartthingsverification() throws Throwable {
+
+		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
+				.header("Authorization", "Bearer 21c0977b-0667-4ebc-ae6f-f04435c384e1")
+				.header("Cache-Control", "no-cache").when()
+				.get("https://api.smartthings.com/v1/devices/057e2be1-96e1-417a-9ac1-2891c9262877/components/main/capabilities/lockCodes/status")
+				.then().statusCode(200).extract().response();
+		// smartthings_code1 = "code_5014";
+		smartthings_code1 = "code_" + code_regenerate;
+		System.out.println(smartthings_code1);
+		smartthings_code2 = response.jsonPath().getString("lockCodes.value");
+		Assert.assertTrue(smartthings_code2.contains(smartthings_code1));
+
+	}
+
+	@Test(priority = 7, enabled = true)
+	public void DeleteMastercode() throws Throwable {
+
+		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
+				.pathParam("propertyId", "e787c685-c805-4f35-bd30-316428dc5f32").queryParam("type", "FIRE_SAFETY_CODE")
+				.header("Authorization", "Bearer " + sessionId).when().get("/api/mastercode/{propertyId}").then()
+				.statusCode(200).log().ifValidationFails().extract().response();
+
+		masterCodeId = response.jsonPath().getString("data.id");
+		System.out.println("masterCodeId------>" + masterCodeId);
+
+		String requestBody = "{ \"masterCodeId\": \"" + masterCodeId + "\" }";
+
+		Response response2 = given().accept(ContentType.JSON).contentType(ContentType.JSON)
+				.header("Authorization", "Bearer " + sessionId)
+				.header("dt-property-id", "e787c685-c805-4f35-bd30-316428dc5f32").body(requestBody).when()
+				.delete("/api/mastercode").then().statusCode(200).log().ifValidationFails().extract().response();
+
+		String DeleteKeysResponse = response2.getBody().asPrettyString();
+
+		System.out.println("DeleteKeysResponse----->" + DeleteKeysResponse);
+
+	}
+
+}
