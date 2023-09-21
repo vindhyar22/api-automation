@@ -250,7 +250,7 @@ public class properties {
 	}
 
 	@Test(priority = 2, enabled = true)
-	public void getUserRoleAtProperty() {
+	public void getUserRoleAtProperty2() {
 
 		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
 				.pathParam("propertyId", propertyId).pathParam("userId", userId)
@@ -295,6 +295,21 @@ public class properties {
 		System.out.println("addOrganizationUserToAProperty----->" + addOrganizationUserToAProperty);
 
 		// progress
+
+	}
+
+	@Test(priority = 2, enabled = true)
+	public void getUserRoleAtProperty() {
+
+		Response response = given().accept(ContentType.JSON).contentType(ContentType.JSON)
+				.pathParam("propertyId", propertyId).pathParam("userId", userId)
+				.header("Authorization", "Bearer " + sessionId).when()
+				.get("/api/properties/{propertyId}/userRole/{userId}").then().statusCode(200).extract().response();
+
+		String getUserRoleAtProperty = response.getBody().asPrettyString();
+		System.out.println("getUserRoleAtProperty----->" + getUserRoleAtProperty);
+
+		// working
 
 	}
 
