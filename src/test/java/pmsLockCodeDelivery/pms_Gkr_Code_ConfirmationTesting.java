@@ -14,7 +14,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class pms_Gkr_Code_ConfirmationTesting {
-
+	// create variables
 	String dtauthloginkey;
 	String dtauthloginkey2;
 	String GKRCreatedResponse;
